@@ -4,6 +4,12 @@
 
 ## Build
 
+To download all dependencies call:
+```bash
+dep ensure
+```
+
+To build the code call:
 ```bash
 go build -o terraform-provider-salesforce && \
     cp ./terraform-provider-salesforce tf/terraform.d/plugins/darwin_amd64
