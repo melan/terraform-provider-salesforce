@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/nimajalali/go-force/force"
+	"github.com/melan/terraform-provider-salesforce/salesforce"
 )
 
 const (
-	USER_API_NAME                = "User"
-	USER_DEFAULT_PROFILE         = "00ef2000001fVFK"
-	USER_DEFAULT_ROLE            = ""
-	USER_DEFAULT_TIME_ZONE       = "America/Los_Angeles"
-	USER_DEFAULT_LOCALE          = "en_US"
-	USER_DEFAULT_EMAIL_ENCODING  = "ISO-8859-1"
-	USER_DEFAULT_LANGUAGE_LOCALE = "en_US"
+	UserApiName               = "User"
+	UserDefaultProfile        = "00ef2000001fVFK"
+	UserDefaultRole           = ""
+	UserDefaultTimeZone       = "America/Los_Angeles"
+	UserDefaultLocale         = "en_US"
+	UserDefaultEmailEncoding  = "ISO-8859-1"
+	UserDefaultLanguageLocale = "en_US"
 )
 
 var (
@@ -50,11 +50,11 @@ type UserSObject struct {
 }
 
 func (uso *UserSObject) ApiName() string {
-	return USER_API_NAME
+	return UserApiName
 }
 
 func (uso *UserSObject) ExternalIdApiName() string {
-	return USER_API_NAME
+	return UserApiName
 }
 
 func User() *schema.Resource {
@@ -102,16 +102,16 @@ func resourceDataToUser(d *schema.ResourceData) (*UserSObject, error) {
 	user := &UserSObject{
 		IsActive:          d.Get("is_active").(bool),
 		Alias:             d.Get("alias").(string),
-		ProfileId:         USER_DEFAULT_PROFILE,
-		UserRoleId:        USER_DEFAULT_ROLE,
+		ProfileId:         UserDefaultProfile,
+		UserRoleId:        UserDefaultRole,
 		Username:          d.Get("username").(string),
 		Email:             d.Get("email").(string),
 		FirstName:         d.Get("first_name").(string),
 		LastName:          d.Get("last_name").(string),
-		TimeZoneSidKey:    USER_DEFAULT_TIME_ZONE,
-		LocaleSidKey:      USER_DEFAULT_LOCALE,
-		EmailEncodingKey:  USER_DEFAULT_EMAIL_ENCODING,
-		LanguageLocaleKey: USER_DEFAULT_LANGUAGE_LOCALE,
+		TimeZoneSidKey:    UserDefaultTimeZone,
+		LocaleSidKey:      UserDefaultLocale,
+		EmailEncodingKey:  UserDefaultEmailEncoding,
+		LanguageLocaleKey: UserDefaultLanguageLocale,
 	}
 
 	return user, nil
@@ -129,7 +129,7 @@ func userToResourceData(user *UserSObject, d *schema.ResourceData) error {
 }
 
 func userCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*force.ForceApi)
+	client := m.(salesforce.Client).SObjectApi
 	if userId, exists := d.GetOk("user_id"); exists && len(userId.(string)) > 0 {
 		return nil
 	}
@@ -148,7 +148,7 @@ func userCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func userRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*force.ForceApi)
+	client := m.(salesforce.Client).SObjectApi
 	userId, exists := d.GetOk("user_id")
 	if !exists || len(userId.(string)) == 0 {
 		return fmt.Errorf("user_id is unset")
@@ -170,7 +170,7 @@ func userRead(d *schema.ResourceData, m interface{}) error {
 }
 
 func userUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*force.ForceApi)
+	client := m.(salesforce.Client).SObjectApi
 	userId, exists := d.GetOk("user_id")
 	if !exists || len(userId.(string)) == 0 {
 		return fmt.Errorf("user_id is unset")
@@ -190,7 +190,7 @@ func userUpdate(d *schema.ResourceData, m interface{}) error {
 }
 
 func userDelete(d *schema.ResourceData, m interface{}) error {
-	client := m.(*force.ForceApi)
+	client := m.(salesforce.Client).SObjectApi
 	userId, exists := d.GetOk("user_id")
 	if !exists || len(userId.(string)) == 0 {
 		return fmt.Errorf("user_id is unset")

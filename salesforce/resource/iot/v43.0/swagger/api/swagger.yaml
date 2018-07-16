@@ -1,0 +1,3975 @@
+---
+swagger: "2.0"
+info:
+  description: "Use the Salesforce IoT REST API to create and manage orchestrations\
+    \ and contexts, and retrieve usage data."
+  version: "43.0.0"
+  title: "Salesforce IoT API"
+  contact:
+    email: "support@salesforce.com"
+host: "salesforce.com"
+basePath: "/services/data/v43.0/iot"
+schemes:
+- "http"
+paths:
+  /contexts:
+    get:
+      tags:
+      - "Orchestration Context"
+      summary: "List all contexts that have been defined in your org."
+      description: ""
+      operationId: "getContexts"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of contexts returned per page. When one page is returned,\
+          \ it contains the URL in the nextPageUrl property that you use to get the\
+          \ next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      - name: "runtime"
+        in: "query"
+        description: "The Salesforce IoT runtime used."
+        required: false
+        type: "string"
+        enum:
+        - "Standard"
+        - "HighVolume"
+        x-exportParamName: "Runtime"
+      - name: "sortDirection"
+        in: "query"
+        description: "The sort direction, either ascending or descending."
+        required: false
+        type: "string"
+        enum:
+        - "Ascending"
+        - "Descending"
+        x-exportParamName: "SortDirection"
+      - name: "sort"
+        in: "query"
+        description: "The field by which the contexts are sorted."
+        required: false
+        type: "string"
+        enum:
+        - "LastModified"
+        - "Label"
+        x-exportParamName: "Sort"
+      responses:
+        200:
+          description: "Retrieved all contexts."
+          schema:
+            $ref: "#/definitions/ContextCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    post:
+      tags:
+      - "Orchestration Context"
+      summary: "Create a context."
+      description: ""
+      operationId: "createContext"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Context definition."
+        required: true
+        schema:
+          $ref: "#/definitions/ContextInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "Created the orchestration context."
+          schema:
+            $ref: "#/definitions/ContextRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /contexts/{contextId}:
+    get:
+      tags:
+      - "Orchestration Context"
+      summary: "Get the specified context."
+      description: ""
+      operationId: "getContextById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      responses:
+        200:
+          description: "Retrieved the context."
+          schema:
+            $ref: "#/definitions/ContextRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    put:
+      tags:
+      - "Orchestration Context"
+      summary: "Update the specified context using the specified full context definition."
+      description: ""
+      operationId: "updateContext"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of context to update."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      - in: "body"
+        name: "body"
+        description: "Full context definition to replace previous context."
+        required: true
+        schema:
+          $ref: "#/definitions/ContextInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "Updated context."
+          schema:
+            $ref: "#/definitions/ContextRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        409:
+          description: "The event or data set cannot be removed from this context\
+            \ because there are active orchestrations that depend on it."
+    delete:
+      tags:
+      - "Orchestration Context"
+      summary: "Delete the specified context."
+      description: ""
+      operationId: "deleteContext"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context to delete."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      responses:
+        204:
+          description: "Deleted context."
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        409:
+          description: "The context cannot be deleted because it is referenced by\
+            \ an active orchestration."
+          schema:
+            $ref: "#/definitions/Dependencies"
+  /contexts/{contextId}/activations:
+    get:
+      tags:
+      - "Orchestration Context"
+      summary: "List of all activations for this context."
+      operationId: "getContextActivations"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context activation record to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of context activations returned per page. When one\
+          \ page is returned, it contains the URL in the nextPageUrl property that\
+          \ you use to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved all context activations."
+          schema:
+            $ref: "#/definitions/ContextActivationCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    post:
+      tags:
+      - "Orchestration Context"
+      summary: "Activate a context."
+      operationId: "createContextActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context to activate."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      - in: "body"
+        name: "body"
+        description: "Context activation definition."
+        required: true
+        schema:
+          $ref: "#/definitions/ContextActivationInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "The context was activated successfully."
+          schema:
+            $ref: "#/definitions/ContextActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /contexts/{contextId}/activations/last:
+    get:
+      tags:
+      - "Orchestration Context"
+      summary: "Get the last context activation."
+      description: ""
+      operationId: "getLastContextActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context activation record to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      responses:
+        200:
+          description: "Retrieved the last context activation."
+          schema:
+            $ref: "#/definitions/ContextActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /contexts/{contextId}/activations/{activationId}:
+    get:
+      tags:
+      - "Orchestration Context"
+      summary: "Get the specified context activation."
+      description: ""
+      operationId: "getContextActivationById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "contextId"
+        in: "path"
+        description: "ID of the context for the context activation to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ContextId"
+      - name: "activationId"
+        in: "path"
+        description: "ID of context activation to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "ActivationId"
+      responses:
+        200:
+          description: "Context Activation"
+          schema:
+            $ref: "#/definitions/ContextActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "List all orchestrations that have been defined in your org."
+      description: ""
+      operationId: "getOrchestrations"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of orchestrations returned per page. When one page\
+          \ is returned, it contains the URL in the nextPageUrl property that you\
+          \ use to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      - name: "runtimeType"
+        in: "query"
+        description: "The Salesforce IoT runtime used."
+        required: false
+        type: "string"
+        enum:
+        - "Standard"
+        - "HighVolume"
+        x-exportParamName: "RuntimeType"
+      - name: "sortDirection"
+        in: "query"
+        description: "The sort direction, either ascending or descending."
+        required: false
+        type: "string"
+        enum:
+        - "Ascending"
+        - "Descending"
+        x-exportParamName: "SortDirection"
+      - name: "sort"
+        in: "query"
+        description: "The field by which to sort the orchestrations."
+        required: false
+        type: "string"
+        enum:
+        - "LastModified"
+        - "Label"
+        - "ContextLabel"
+        x-exportParamName: "Sort"
+      responses:
+        200:
+          description: "Retrieved all orchestrations."
+          schema:
+            $ref: "#/definitions/OrchestrationCollectionRepresentation"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    post:
+      tags:
+      - "Orchestration"
+      summary: "Create an orchestration."
+      description: ""
+      operationId: "createOrchestration"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Orchestration definition."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "Created orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "Get the specified orchestration."
+      description: ""
+      operationId: "getOrchestrationById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      responses:
+        200:
+          description: "Retrieved the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        404:
+          description: "The resource does not exist."
+    put:
+      tags:
+      - "Orchestration"
+      summary: "Update the specified orchestration using the full orchestration definition."
+      description: ""
+      operationId: "updateOrchestrationWithForm"
+      consumes:
+      - "application/x-www-form-urlencoded"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of orchestration to update."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - in: "body"
+        name: "orchestrationInput"
+        description: "The full orchestration definition to replace the current orchestration\
+          \ with."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationInputRepresentation"
+        x-exportParamName: "OrchestrationInput"
+      responses:
+        200:
+          description: "Updated the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+    delete:
+      tags:
+      - "Orchestration"
+      summary: "Delete the specified orchestration."
+      description: ""
+      operationId: "deleteOrchestration"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to delete."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      responses:
+        204:
+          description: "Deleted the orchestration."
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        409:
+          description: "The orchestration cannot be deleted because it is active."
+  /orchestrations/{orchestrationId}/activations:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "Get the activation history for the specified orchestration. The activations\
+        \ are sorted by creation date in descending order."
+      description: ""
+      operationId: "getOrchestrationActivations"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to get the activation history for."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of activations returned per page. When a page of\
+          \ the response is returned, it contains the nextPageUrl property which is\
+          \ the URL that you use to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved orchestration activations."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    post:
+      tags:
+      - "Orchestration"
+      summary: "Activate the specified orchestration, optionally using activation\
+        \ options."
+      description: ""
+      operationId: "createOrchestrationActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to activate."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - in: "body"
+        name: "body"
+        description: "Optional activation options. Otherwise, an empty body ({})."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationActivationInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "Activated the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationRepresentation"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+        409:
+          description: "The orchestration cannot be activated due to one or more validation\
+            \ errors."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationValidationFailureRepresentation"
+  /orchestrations/{orchestrationId}/activations/last:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "Get the last activation for the specified orchestration."
+      description: ""
+      operationId: "getLastOrchestrationActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to get activation information for."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      responses:
+        200:
+          description: "Retrieved the last activation for the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    patch:
+      tags:
+      - "Orchestration"
+      summary: "Deactivate the specified orchestration. Can only be used to deactivate\
+        \ an active orchestration."
+      description: ""
+      operationId: "updateLastOrchestrationActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to deactivate."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - in: "body"
+        name: "body"
+        description: "The body must include the status property with a value of Inactive.\
+          \ Optionally, you can specify whether to delete running orchestration instances\
+          \ by including the resetInstancesOnActivation option."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationActivationInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "Deactivated orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/activations/{activationId}:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "Get activation information for the specified orchestration and activation."
+      description: ""
+      operationId: "getOrchestrationActivationById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration for which to get activation information."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "activationId"
+        in: "path"
+        description: "ID of the activation to get details of."
+        required: true
+        type: "string"
+        x-exportParamName: "ActivationId"
+      responses:
+        200:
+          description: "Retrieved orchestration activation details."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    patch:
+      tags:
+      - "Orchestration"
+      summary: "Deactivate the specified orchestration activation. No other updates\
+        \ are supported."
+      description: ""
+      operationId: "updateOrchestrationActivation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to deactivate."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "activationId"
+        in: "path"
+        description: "ID of the activation to deactivate."
+        required: true
+        type: "string"
+        x-exportParamName: "ActivationId"
+      - in: "body"
+        name: "body"
+        description: "The body must include the status property with a value of Inactive.\
+          \ Optionally, you can specify whether to delete running orchestration instances\
+          \ by including the resetInstancesOnActivation option."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationActivationInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "Deactivated the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationActivationRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/instances:
+    get:
+      tags:
+      - "Orchestration Instance"
+      summary: "Get the orchestration instances in the specified orchestration."
+      operationId: "getOrchestrationInstances"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of orchestration for which to get the instances."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "stateId"
+        in: "query"
+        description: "ID of state for which to get orchestration instances."
+        required: false
+        type: "string"
+        x-exportParamName: "StateId"
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of orchestration instances returned per page. When\
+          \ one page is returned, it contains the URL in the nextPageUrl property\
+          \ that you use to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved orchestration instances."
+          schema:
+            $ref: "#/definitions/OrchestrationInstanceCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/instances/{instanceKey}:
+    get:
+      tags:
+      - "Orchestration Instance"
+      summary: "Get the orchestration instance corresponding to the specified orchestration\
+        \ and instance key."
+      operationId: "getOrchestrationInstanceByKey"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "A unique identifier for the orchestration instance."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "instanceKey"
+        in: "path"
+        description: "A key that uniquely identifies an orchestration instance. The\
+          \ instanceKey is the value of the event key field."
+        required: true
+        type: "string"
+        x-exportParamName: "InstanceKey"
+      responses:
+        200:
+          description: "Retrieved the orchestration instance."
+          schema:
+            $ref: "#/definitions/OrchestrationInstanceDetailRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    delete:
+      tags:
+      - "Orchestration Instance"
+      summary: "Delete the orchestration instance corresponding to the specified orchestration\
+        \ and instance key."
+      operationId: "deleteOrchestrationInstanceByKey"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "A unique identifier for the orchestration instance."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "instanceKey"
+        in: "path"
+        description: "A key that uniquely identifies an orchestration instance. The\
+          \ instanceKey is the value of the event key field."
+        required: true
+        type: "string"
+        x-exportParamName: "InstanceKey"
+      responses:
+        204:
+          description: "Deleted data pertinent to the orchestration instance key."
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        409:
+          description: "Delete failed as not all the data pertinent to the orchestration\
+            \ instance can be deleted."
+        501:
+          description: "This orchestration instance cannot be deleted."
+  /orchestrations/{orchestrationId}/instances/{instanceKey}/log:
+    get:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Get a log of orchestration events for a specific orchestration and\
+        \ key value."
+      operationId: "getOrchestrationInstanceLog"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "Orchestration ID for which to get the log of events for a specific\
+          \ orchestration instance key value."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "instanceKey"
+        in: "path"
+        description: "Orchestration instance key value for which to get a log of orchestration\
+          \ events."
+        required: true
+        type: "string"
+        x-exportParamName: "InstanceKey"
+      - name: "fromDate"
+        in: "query"
+        description: "Get log events for which the timestamp is later than fromDate."
+        required: true
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+        x-exportParamName: "FromDate"
+      - name: "toDate"
+        in: "query"
+        description: "Get log events for which the timestamp is prior to toDate"
+        required: true
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+        x-exportParamName: "ToDate"
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of log events returned per page. When one page is\
+          \ returned, it contains the URL in the nextPageUrl property that you use\
+          \ to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "A log of orchestration events for a specific orchestration\
+            \ and key value."
+          schema:
+            $ref: "#/definitions/OrchestrationLogEventCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/states:
+    get:
+      tags:
+      - "Orchestration"
+      summary: "Get the states in this orchestration."
+      operationId: "getOrchestrationStates"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration for which to get the states."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      responses:
+        200:
+          description: "A list of states for the orchestration."
+          schema:
+            $ref: "#/definitions/OrchestrationStateCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/metrics/transitions:
+    get:
+      tags:
+      - "Orchestration Metrics"
+      summary: "Get state transition counts for the specified orchestration."
+      description: ""
+      operationId: "getOrchestrationTransitionCounts"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration to get transition counts for."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      responses:
+        200:
+          description: "Retrieved a collection of state transition counts for the\
+            \ orchestration."
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/OrchestrationTransitionCount"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /orchestrations/{orchestrationId}/trackers:
+    get:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Get a list of trackers setup for this orchestration."
+      operationId: "getOrchestrationTrackers"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration for which to get trackers."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of trackers returned per page. When a page of the\
+          \ response is returned, it contains the nextPageUrl property which is the\
+          \ URL that you use to get the next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "A list of trackers."
+          schema:
+            $ref: "#/definitions/OrchestrationTrackerCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    post:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Create a new tracker for an orchestration."
+      operationId: "createTracker"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the orchestration for which to create a tracker."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - in: "body"
+        name: "body"
+        description: "Tracker definition."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationTrackerPostInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        201:
+          description: "Created an orchestration tracker."
+          schema:
+            $ref: "#/definitions/OrchestrationTrackerRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /orchestrations/{orchestrationId}/trackers/{trackerId}:
+    get:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Get the specified tracker corresponding to the specified orchestration."
+      description: ""
+      operationId: "getTrackerById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the tracker's orchestration."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "trackerId"
+        in: "path"
+        description: "ID of the tracker."
+        required: true
+        type: "string"
+        x-exportParamName: "TrackerId"
+      responses:
+        200:
+          description: "Retrieved the orchestration tracker."
+          schema:
+            $ref: "#/definitions/OrchestrationTrackerRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+    delete:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Delete a tracker."
+      description: ""
+      operationId: "deleteTracker"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of the tracker's orchestration for which to delete the tracker."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "trackerId"
+        in: "path"
+        description: "ID of the tracker to delete."
+        required: true
+        type: "string"
+        x-exportParamName: "TrackerId"
+      responses:
+        204:
+          description: "Deleted the orchestration tracker."
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+    patch:
+      tags:
+      - "Orchestration Tracker"
+      summary: "Update a tracker."
+      description: ""
+      operationId: "updateTracker"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "orchestrationId"
+        in: "path"
+        description: "ID of a tracker's orchestration."
+        required: true
+        type: "string"
+        x-exportParamName: "OrchestrationId"
+      - name: "trackerId"
+        in: "path"
+        description: "ID of a tracker."
+        required: true
+        type: "string"
+        x-exportParamName: "TrackerId"
+      - in: "body"
+        name: "body"
+        description: "Tracker to update."
+        required: true
+        schema:
+          $ref: "#/definitions/OrchestrationTrackerPatchInputRepresentation"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "Updated the orchestration tracker."
+          schema:
+            $ref: "#/definitions/OrchestrationTrackerRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /datasets:
+    get:
+      tags:
+      - "Dataset"
+      summary: "List all datasets that have been defined in your org."
+      description: ""
+      operationId: "getDatasets"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of datasets returned per page. When one page is returned,\
+          \ it contains the URL in the nextPageUrl property that you use to get the\
+          \ next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved all datasets."
+          schema:
+            $ref: "#/definitions/OrchestrationDatasetCollectionRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /datasets/{name}:
+    get:
+      tags:
+      - "Dataset"
+      summary: "Get the specified dataset."
+      description: ""
+      operationId: "getDatasetById"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Unique name of the dataset to retrieve."
+        required: true
+        type: "string"
+        x-exportParamName: "Name"
+      responses:
+        200:
+          description: "Retrieved the dataset."
+          schema:
+            $ref: "#/definitions/OrchestrationDatasetDetailRepresentation"
+        400:
+          description: "The server can't process the request due to an invalid representation."
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+  /usage:
+    get:
+      tags:
+      - "Usage and Allocations"
+      summary: "Get IoT usage information for the entire org. Usage information includes\
+        \ allocations for events and orchestrations, the number of events processed\
+        \ and skipped across all orchestrations, and a link to usage information for\
+        \ orchestration instances."
+      description: ""
+      parameters: []
+      responses:
+        200:
+          description: "Retrieved IoT usage for the Salesforce org."
+          schema:
+            $ref: "#/definitions/UsageDetailRepresentation"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /usage/orchestration-usage:
+    get:
+      tags:
+      - "Usage and Allocations"
+      summary: "Get usage data for each orchestration in the org, such as the number\
+        \ of instances, and the number of processed and skipped events per orchestration."
+      description: ""
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "For internal use only."
+        required: false
+        type: "string"
+        x-exportParamName: "Page"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of items returned per page. When one page is returned,\
+          \ it contains the URL in the nextPageUrl property that you use to get the\
+          \ next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved a list of orchestrations and their usage information."
+          schema:
+            $ref: "#/definitions/OrchestrationUsageCollectionRepresentation"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /activities:
+    get:
+      tags:
+      - "Activity"
+      summary: "Get a list of all activities correlating to matching filter parameters."
+      description: "This endpoint will return a list of all the activities matching\
+        \ the filter parameters. Optional source record ids can be an array."
+      parameters:
+      - name: "sourceIds"
+        in: "query"
+        description: "IDs of the source objects to be retrieved."
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        x-exportParamName: "SourceIds"
+      - name: "search"
+        in: "query"
+        description: "Single-word term search."
+        required: false
+        type: "string"
+        x-exportParamName: "Search"
+      - name: "level"
+        in: "query"
+        description: "Activity log level."
+        required: false
+        type: "string"
+        enum:
+        - "Info"
+        - "Error"
+        x-exportParamName: "Level"
+      - name: "activityType"
+        in: "query"
+        description: "Type of activity."
+        required: false
+        type: "string"
+        enum:
+        - "ContextSave"
+        - "ContextDelete"
+        - "ContextActivate"
+        - "OrchestrationSave"
+        - "OrchestrationDelete"
+        - "OrchestrationActivate"
+        - "OrchestrationDeactivate"
+        - "OrchestrationInstanceLimitNotification"
+        - "EventLimitNotification"
+        - "LostEventNotification"
+        - "TransitionToErrorState"
+        x-exportParamName: "ActivityType"
+      - name: "instanceKey"
+        in: "query"
+        description: "Orchestration instance key."
+        required: false
+        type: "string"
+        x-exportParamName: "InstanceKey"
+      - name: "startTime"
+        in: "query"
+        description: "Activity log start-time filter."
+        required: false
+        type: "string"
+        format: "date-time"
+        x-exportParamName: "StartTime"
+      - name: "endTime"
+        in: "query"
+        description: "Activity log end-time filter."
+        required: false
+        type: "string"
+        format: "date-time"
+        x-exportParamName: "EndTime"
+      - name: "pageSize"
+        in: "query"
+        description: "The number of items returned per page. When one page is returned,\
+          \ it contains the URL in the nextPageUrl property that you use to get the\
+          \ next page of results."
+        required: false
+        type: "integer"
+        x-exportParamName: "PageSize"
+      responses:
+        200:
+          description: "Retrieved an array of activities satisfying the queried filter\
+            \ parameters."
+          schema:
+            $ref: "#/definitions/Activity"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+  /activities/{id}:
+    get:
+      tags:
+      - "Activity"
+      summary: "Get a single activity record matching the ID."
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID for the log entry."
+        required: true
+        type: "string"
+        x-exportParamName: "Id"
+      responses:
+        200:
+          description: "Retrieved the associated activity."
+          schema:
+            $ref: "#/definitions/ActivityInfo"
+        401:
+          description: "The request requires user authentication."
+        403:
+          description: "The user is not authorized to perform this operation."
+        404:
+          description: "The resource does not exist."
+definitions:
+  ContextInputRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "Solar_Panel_Context"
+        description: "A unique name that's used to refer to the context through the\
+          \ API."
+      label:
+        type: "string"
+        example: "Solar Panel Context"
+        description: "The context label that's displayed in the user interface."
+      description:
+        type: "string"
+        description: "A description of the context."
+      runtime:
+        type: "string"
+        description: "The Salesforce IoT runtime used."
+        enum:
+        - "Standard"
+        - "HighVolume"
+      events:
+        type: "array"
+        description: "A list of one ore more events associated with this context."
+        items:
+          $ref: "#/definitions/OrchestrationEventTypeInputRepresentation"
+      referenceData:
+        type: "array"
+        description: "The Salesforce object associated with this context."
+        items:
+          $ref: "#/definitions/ContextDatasetInputRepresentation"
+    description: "The definition of a context."
+    example:
+      referenceData:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      name: "Solar_Panel_Context"
+      description: "description"
+      runtime: "Standard"
+      label: "Solar Panel Context"
+      events:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+  ContextCollectionRepresentation:
+    type: "object"
+    required:
+    - "contexts"
+    properties:
+      nextPageUrl:
+        type: "string"
+        example: ""
+        description: "The URL you use to get the next page of contexts."
+      contexts:
+        type: "array"
+        description: "A list of contexts."
+        items:
+          $ref: "#/definitions/ContextSummaryRepresentation"
+    description: "A list of contexts. Each context representation contains context\
+      \ fields including the context ID and other system fields."
+    example:
+      nextPageUrl: ""
+      contexts:
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        name: "Solar_Panel_Context"
+        namespace: "namespace"
+        description: "description"
+        runtime: "Standard"
+        id: "0MeS70000004CAQKA2"
+        label: "Solar Panel Context"
+        url: "url"
+        status: "Active"
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        name: "Solar_Panel_Context"
+        namespace: "namespace"
+        description: "description"
+        runtime: "Standard"
+        id: "0MeS70000004CAQKA2"
+        label: "Solar Panel Context"
+        url: "url"
+        status: "Active"
+  ContextSummaryRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "0MeS70000004CAQKA2"
+        description: "A unique identifier for the context."
+      name:
+        type: "string"
+        example: "Solar_Panel_Context"
+        description: "A unique name that's used to refer to the context through the\
+          \ API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      label:
+        type: "string"
+        example: "Solar Panel Context"
+        description: "The context label that's displayed in the user interface."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this context."
+      status:
+        type: "string"
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      description:
+        type: "string"
+        description: "A context description."
+      runtime:
+        type: "string"
+        description: "The Salesforce IoT runtime used."
+        enum:
+        - "Standard"
+        - "HighVolume"
+    description: "Summary information about a context including system fields and\
+      \ excluding event and reference data information."
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      name: "Solar_Panel_Context"
+      namespace: "namespace"
+      description: "description"
+      runtime: "Standard"
+      id: "0MeS70000004CAQKA2"
+      label: "Solar Panel Context"
+      url: "url"
+      status: "Active"
+  ContextRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "0MeS70000004CAQKA2"
+        description: "A unique identifier for the context."
+      name:
+        type: "string"
+        example: "Solar_Panel_Context"
+        description: "A unique name that's used to refer to the context through the\
+          \ API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      label:
+        type: "string"
+        example: "Solar Panel Context"
+        description: "The context label that's displayed in the user interface."
+      manageableState:
+        type: "string"
+        description: "An enum that denotes if the orchestration is part of a managed\
+          \ package, and the package state: released, deleted, deprecated, installed,\
+          \ beta, or unmanaged."
+        enum:
+        - "unmanaged"
+        - "released"
+        - "deleted"
+        - "\_\"deprecated\""
+        - "\_\"installed\""
+        - "\_ \"beta\""
+        - "deletable"
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this context."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      description:
+        type: "string"
+        description: "A context description."
+      status:
+        type: "string"
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+      runtime:
+        type: "string"
+        description: "The Salesforce IoT runtime used."
+        enum:
+        - "Standard"
+        - "HighVolume"
+      events:
+        type: "array"
+        description: "A list of events and key fields associated with the context."
+        items:
+          $ref: "#/definitions/OrchestrationEventType"
+      referenceData:
+        type: "array"
+        description: "The Salesforce object and key field associated with the context."
+        items:
+          $ref: "#/definitions/ContextDataset"
+      orchestrationsUrl:
+        type: "string"
+        description: "Resource URL to retrieve all orchestrations using this context."
+    description: "The definition of a context including the context ID and other system\
+      \ fields."
+    example:
+      manageableState: "unmanaged"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      description: "description"
+      runtime: "Standard"
+      label: "Solar Panel Context"
+      orchestrationsUrl: "orchestrationsUrl"
+      url: "url"
+      referenceData:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      name: "Solar_Panel_Context"
+      namespace: "namespace"
+      id: "0MeS70000004CAQKA2"
+      events:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      status: "Active"
+  ContextDefinitionRepresentation:
+    type: "object"
+    properties:
+      events:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationEventType"
+      referenceData:
+        type: "array"
+        items:
+          $ref: "#/definitions/ContextDataset"
+    example:
+      referenceData:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      events:
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+      - keyFields:
+        - "keyFields"
+        - "keyFields"
+  ContextActivationInputRepresentation:
+    type: "object"
+  ContextActivationCollectionRepresentation:
+    type: "object"
+    required:
+    - "activations"
+    - "nextPage"
+    properties:
+      nextPage:
+        type: "string"
+        example: ""
+      totalSize:
+        type: "string"
+      url:
+        type: "string"
+      activations:
+        type: "array"
+        items:
+          $ref: "#/definitions/ContextActivationSummaryRepresentation"
+    example:
+      totalSize: "totalSize"
+      nextPage: ""
+      activations:
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        id: "id"
+        url: "url"
+        status: "FailedValidation"
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        id: "id"
+        url: "url"
+        status: "FailedValidation"
+      url: "url"
+  ContextActivationSummaryRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this context summary activation."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      status:
+        type: "string"
+        enum:
+        - "FailedValidation"
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      id: "id"
+      url: "url"
+      status: "FailedValidation"
+  ContextActivationRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      url:
+        type: "string"
+        description: "Resource URL for this context activation."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      contextUrl:
+        type: "string"
+        description: "Resource URL for the parent context."
+      status:
+        type: "string"
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Validating"
+        - "Invalid"
+        - "Error"
+      runtime:
+        type: "string"
+        enum:
+        - "Standard"
+        - "HighVolume"
+      definition:
+        $ref: "#/definitions/ContextDefinitionRepresentation"
+      result:
+        $ref: "#/definitions/ContextActivationResultRepresentation"
+    example:
+      result:
+        messages:
+        - severity: "Error"
+          text: "text"
+        - severity: "Error"
+          text: "text"
+        orchestrations:
+        - name: "name"
+          namespace: "namespace"
+          activationStatus: "Active"
+          messages:
+          - severity: "Warning"
+            location: "location"
+            message: "message"
+          - severity: "Warning"
+            location: "location"
+            message: "message"
+          id: "id"
+          label: "label"
+          activationUrl: "activationUrl"
+          url: "url"
+        - name: "name"
+          namespace: "namespace"
+          activationStatus: "Active"
+          messages:
+          - severity: "Warning"
+            location: "location"
+            message: "message"
+          - severity: "Warning"
+            location: "location"
+            message: "message"
+          id: "id"
+          label: "label"
+          activationUrl: "activationUrl"
+          url: "url"
+      contextUrl: "contextUrl"
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      runtime: "Standard"
+      definition:
+        referenceData:
+        - keyFields:
+          - "keyFields"
+          - "keyFields"
+        - keyFields:
+          - "keyFields"
+          - "keyFields"
+        events:
+        - keyFields:
+          - "keyFields"
+          - "keyFields"
+        - keyFields:
+          - "keyFields"
+          - "keyFields"
+      id: "id"
+      url: "url"
+      status: "Active"
+  ContextActivationResultRepresentation:
+    type: "object"
+    properties:
+      messages:
+        type: "array"
+        items:
+          $ref: "#/definitions/ErrorRepresentation"
+      orchestrations:
+        type: "array"
+        items:
+          $ref: "#/definitions/ContextActivationOrchestrationResultRepresentation"
+    description: "A collection of results for the activation of a context."
+    example:
+      messages:
+      - severity: "Error"
+        text: "text"
+      - severity: "Error"
+        text: "text"
+      orchestrations:
+      - name: "name"
+        namespace: "namespace"
+        activationStatus: "Active"
+        messages:
+        - severity: "Warning"
+          location: "location"
+          message: "message"
+        - severity: "Warning"
+          location: "location"
+          message: "message"
+        id: "id"
+        label: "label"
+        activationUrl: "activationUrl"
+        url: "url"
+      - name: "name"
+        namespace: "namespace"
+        activationStatus: "Active"
+        messages:
+        - severity: "Warning"
+          location: "location"
+          message: "message"
+        - severity: "Warning"
+          location: "location"
+          message: "message"
+        id: "id"
+        label: "label"
+        activationUrl: "activationUrl"
+        url: "url"
+  ErrorRepresentation:
+    type: "object"
+    properties:
+      text:
+        type: "string"
+      severity:
+        type: "string"
+        enum:
+        - "Error"
+        - "Warning"
+    description: "A generic error with a message and status."
+    example:
+      severity: "Error"
+      text: "text"
+  ContextActivationOrchestrationResultRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      label:
+        type: "string"
+      name:
+        type: "string"
+      namespace:
+        type: "string"
+      url:
+        type: "string"
+      activationUrl:
+        type: "string"
+      activationStatus:
+        type: "string"
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+        - "Unknown"
+      messages:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationValidationMessageRepresentation"
+    description: "A collection of messages for a specific orchestration during the\
+      \ activation of a context."
+    example:
+      name: "name"
+      namespace: "namespace"
+      activationStatus: "Active"
+      messages:
+      - severity: "Warning"
+        location: "location"
+        message: "message"
+      - severity: "Warning"
+        location: "location"
+        message: "message"
+      id: "id"
+      label: "label"
+      activationUrl: "activationUrl"
+      url: "url"
+  OrchestrationEventTypeInputRepresentation:
+    type: "object"
+    properties:
+      keyFields:
+        type: "array"
+        description: "The key field selected to match event messages with orchestration\
+          \ instances. Only one key field is supported."
+        items:
+          type: "string"
+    description: "An event referenced in a context."
+    example:
+      keyFields:
+      - "keyFields"
+      - "keyFields"
+  ContextDatasetInputRepresentation:
+    type: "object"
+    properties:
+      keyFields:
+        type: "array"
+        description: "The key field selected to match reference data with orchestration\
+          \ instances. Only one key field is supported."
+        items:
+          type: "string"
+    description: "The reference object and key field associated with the context."
+    example:
+      keyFields:
+      - "keyFields"
+      - "keyFields"
+  DatasetReferenceInputRepresentation:
+    type: "object"
+    required:
+    - "name"
+    - "type"
+    properties:
+      type:
+        type: "string"
+        description: "The type of the reference object."
+        enum:
+        - "SalesforceObjectReference"
+        - "Wave"
+      name:
+        type: "string"
+        description: "The reference object name."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+    description: "Information about the reference object, such as the object name\
+      \ and type."
+  EventTypeReferenceInputRepresentation:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "The event type."
+        enum:
+        - "PlatformEvent"
+      name:
+        type: "string"
+        description: "The event name."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+    description: "Information about the event."
+  Dependencies:
+    type: "object"
+    properties:
+      orchestrations:
+        type: "string"
+        description: "URL to orchestrations that use the context."
+    description: "URL to Orchestrations that use the context."
+  OrchestrationEventType:
+    type: "object"
+    properties:
+      keyFields:
+        type: "array"
+        description: "The key field selected to match event messages with orchestration\
+          \ instances. Only one key field is supported."
+        items:
+          type: "string"
+    description: "An event and key field."
+    example:
+      keyFields:
+      - "keyFields"
+      - "keyFields"
+  ContextDataset:
+    type: "object"
+    properties:
+      keyFields:
+        type: "array"
+        description: "The key field selected to match reference data with orchestration\
+          \ instances. Only one key field is supported."
+        items:
+          type: "string"
+    description: "Dataset or SalesforceObject and key fields associated with the context."
+    example:
+      keyFields:
+      - "keyFields"
+      - "keyFields"
+  EventTypeReference:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "The event type."
+        enum:
+        - "PlatformEvent"
+      label:
+        type: "string"
+        description: "The event label that's displayed in the user interface."
+      name:
+        type: "string"
+        description: "A unique name that's used to refer to the event through the\
+          \ API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      id:
+        type: "string"
+        example: "01IS70000008WrDMAU"
+        description: "A unique identifier for the event definition."
+    description: "Information about the event, such as the event name, label, and\
+      \ type."
+  DatasetReference:
+    type: "object"
+    required:
+    - "name"
+    - "type"
+    properties:
+      type:
+        type: "string"
+        description: "The reference object type."
+        enum:
+        - "SalesforceObjectReference"
+        - "Wave"
+      label:
+        type: "string"
+        description: "The reference object label that's displayed in the user interface."
+      name:
+        type: "string"
+        description: "A unique name that's used to refer to the reference object through\
+          \ the API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages when type is SalesforceObjectReference."
+      id:
+        type: "string"
+        example: "Asset"
+        description: "A unique identifier for the Salesforce object when type is SalesforceObjectReference."
+    description: "Information about the reference object, such as the object name\
+      \ and type."
+  OrchestrationInputRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "A unique name that's used to refer to the orchestration through\
+          \ the API."
+      label:
+        type: "string"
+        description: "The orchestration label that's displayed in the user interface."
+    description: "The orchestration representation including the associated context."
+    example:
+      name: "name"
+      label: "label"
+  OrchestrationCollectionRepresentation:
+    type: "object"
+    required:
+    - "orchestrations"
+    properties:
+      nextPageUrl:
+        type: "string"
+        example: ""
+        description: "The URL you use to get the next page of orchestrations."
+      orchestrations:
+        type: "array"
+        description: "A list of orchestration summaries returned per page."
+        items:
+          $ref: "#/definitions/OrchestrationSummaryRepresentation"
+    description: "A list containing summary information of all orchestrations."
+    example:
+      nextPageUrl: ""
+      orchestrations:
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        name: "name"
+        namespace: "namespace"
+        id: "id"
+        label: "label"
+        url: "url"
+        status: "Active"
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        name: "name"
+        namespace: "namespace"
+        id: "id"
+        label: "label"
+        url: "url"
+        status: "Active"
+  OrchestrationSummaryRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "A unique identifier for the orchestration."
+      name:
+        type: "string"
+        description: "A unique name that's used to refer to the orchestration through\
+          \ the API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      label:
+        type: "string"
+        description: "The orchestration label that's displayed in the user interface."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this orchestration."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      status:
+        type: "string"
+        description: "The orchestration status."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+    description: "Summary information about an orchestration including system fields\
+      \ but excluding the orchestration definition."
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      name: "name"
+      namespace: "namespace"
+      id: "id"
+      label: "label"
+      url: "url"
+      status: "Active"
+  OrchestrationRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "0FFS70000004C9NOAU"
+        description: "A unique identifier for the orchestration."
+      name:
+        type: "string"
+        description: "A unique name that's used to refer to the orchestration through\
+          \ the API."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      manageableState:
+        type: "string"
+        description: "An enum that denotes if the orchestration is part of a managed\
+          \ package and the package state: released, deleted, deprecated, installed,\
+          \ beta, or unmanaged."
+        enum:
+        - "unmanaged"
+        - "released"
+        - "deleted"
+        - "\_\"deprecated\""
+        - "\_\"installed\""
+        - "\_ \"beta\""
+        - "deletable"
+      label:
+        type: "string"
+        description: "The orchestration label that's displayed in the user interface."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this orchestration."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      status:
+        type: "string"
+        description: "The orchestration status."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+      deletedStates:
+        type: "array"
+        description: "A list of states that were deleted."
+        items:
+          $ref: "#/definitions/OrchestrationStateReferenceRepresentation"
+    description: "An orchestration representation including system fields and the\
+      \ orchestration definition."
+    example:
+      manageableState: "unmanaged"
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      name: "name"
+      namespace: "namespace"
+      id: "0FFS70000004C9NOAU"
+      label: "label"
+      url: "url"
+      status: "Active"
+      deletedStates:
+      - name: "name"
+        id: 0
+      - name: "name"
+        id: 0
+  OrchestrationValidationMessagesRepresentation:
+    type: "object"
+    properties:
+      validationMessages:
+        type: "array"
+        description: "A list of validation messages."
+        items:
+          $ref: "#/definitions/OrchestrationValidationMessageRepresentation"
+    description: "A list of validation messages returned when saving an orchestration."
+  OrchestrationValidationMessageRepresentation:
+    type: "object"
+    properties:
+      location:
+        type: "string"
+        description: "The location of the warning or error."
+      message:
+        type: "string"
+        description: "The validation message text."
+      severity:
+        type: "string"
+        description: "Indicates whether the issue is a warning or an error."
+        enum:
+        - "Warning"
+        - "Error"
+    description: "A validation message."
+    example:
+      severity: "Warning"
+      location: "location"
+      message: "message"
+  OrchestrationActivationInputRepresentation:
+    type: "object"
+    properties:
+      status:
+        type: "string"
+        description: "Use the status to deactivate an orchestration by setting the\
+          \ status to Inactive. No status is needed when activating an orchestration."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+    description: "Activation status and options."
+    example:
+      status: "Active"
+  OrchestrationActivationCollectionRepresentation:
+    type: "object"
+    required:
+    - "activations"
+    properties:
+      nextPageUrl:
+        type: "string"
+        example: ""
+        description: "The URL you use to get the next page of activations."
+      totalSize:
+        type: "string"
+        description: "The total number of activations for this orchestration."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this list of activations."
+      activations:
+        type: "array"
+        description: "A list of of orchestration activation summaries."
+        items:
+          $ref: "#/definitions/OrchestrationActivationSummaryRepresentation"
+    description: "A list of orchestration activation summaries."
+    example:
+      nextPageUrl: ""
+      totalSize: "totalSize"
+      activations:
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        id: "0MlS70000004C9hKAE"
+        url: "url"
+        status: "Active"
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        id: "0MlS70000004C9hKAE"
+        url: "url"
+        status: "Active"
+      url: "url"
+  OrchestrationActivationSummaryRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "0MlS70000004C9hKAE"
+        description: "A unique identifier for the orchestration activation summary."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this orchestration activation summary."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      status:
+        type: "string"
+        description: "The activation status."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+    description: "Summary information about an orchestration activation."
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      id: "0MlS70000004C9hKAE"
+      url: "url"
+      status: "Active"
+  OrchestrationActivationRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "0MlS70000004C9hKAE"
+        description: "A unique identifier for the activation."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this orchestration activation."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      orchestrationUrl:
+        type: "string"
+        description: "Resource URL to retrieve the parent orchestration."
+      status:
+        type: "string"
+        description: "The activation status."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+    description: "Detailed information about an orchestration activation."
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      orchestrationUrl: "orchestrationUrl"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      id: "0MlS70000004C9hKAE"
+      url: "url"
+      status: "Active"
+  OrchestrationActivationOptions:
+    type: "object"
+    properties:
+      resetInstancesOnActivation:
+        type: "boolean"
+        description: "Delete running orchestration instances."
+    description: "Options used for orchestration activation."
+  OrchestrationInstanceCollectionRepresentation:
+    type: "object"
+    required:
+    - "instances"
+    - "nextPage"
+    properties:
+      nextPage:
+        type: "string"
+        example: ""
+      instances:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationInstanceSummaryRepresentation"
+    example:
+      instances:
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        url: "url"
+        instanceKey: "KEY0000"
+      - createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        lastModifiedDate: "lastModifiedDate"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        url: "url"
+        instanceKey: "KEY0000"
+      nextPage: ""
+  OrchestrationInstanceSummaryRepresentation:
+    type: "object"
+    properties:
+      instanceKey:
+        type: "string"
+        example: "KEY0000"
+        description: "Key of the orchestration instance."
+      url:
+        type: "string"
+        description: "Resource URL for this orchestration instance."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+    example:
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      url: "url"
+      instanceKey: "KEY0000"
+  OrchestrationInstanceDetailRepresentation:
+    type: "object"
+    properties:
+      instanceKey:
+        type: "string"
+        description: "A key that uniquely identifies an orchestration instance. The\
+          \ instanceKey is the value of the event key field."
+      id:
+        type: "string"
+        example: "0PbS70000004C9hKAE"
+        description: "A unique identifier for the orchestration instance."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this orchestration instance."
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+      description:
+        type: "string"
+        description: "A description for the orchestration instance."
+      variables:
+        type: "array"
+        description: "A list of variables that are part of the orchestration instance."
+        items:
+          $ref: "#/definitions/VariableRepresentation"
+    description: "Information about an instance of an orchestration."
+    example:
+      variables:
+      - dataType: "Boolean"
+        name: "name"
+        value: "{}"
+      - dataType: "Boolean"
+        name: "name"
+        value: "{}"
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      lastModifiedDate: "lastModifiedDate"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      description: "description"
+      id: "0PbS70000004C9hKAE"
+      url: "url"
+      instanceKey: "instanceKey"
+  OrchestrationStateCollectionRepresentation:
+    type: "object"
+    required:
+    - "states"
+    properties:
+      states:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationStateSummaryRepresentation"
+    example:
+      states:
+      - instancesUrl: "instancesUrl"
+        stateId: "1"
+        label: "label"
+      - instancesUrl: "instancesUrl"
+        stateId: "1"
+        label: "label"
+  OrchestrationStateSummaryRepresentation:
+    type: "object"
+    properties:
+      stateId:
+        type: "string"
+        example: "1"
+        description: "The internal state ID, not the Salesforce Record ID."
+      label:
+        type: "string"
+      instancesUrl:
+        type: "string"
+        description: "Resource URL for the orchestration instances in this state."
+    example:
+      instancesUrl: "instancesUrl"
+      stateId: "1"
+      label: "label"
+  StateReferenceRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "A unique identifier for the state."
+      name:
+        type: "string"
+        description: "The state name."
+    description: "A reference to an orchestration state."
+  VariableRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The variable name."
+      value:
+        type: "object"
+        description: "The variable value."
+        properties: {}
+      dataType:
+        type: "string"
+        description: "The variable type."
+        enum:
+        - "Boolean"
+        - "Number"
+        - "Date"
+        - "DateTime"
+        - "String"
+    description: "An orchestration variable."
+    example:
+      dataType: "Boolean"
+      name: "name"
+      value: "{}"
+  OrchestrationDatasetCollectionRepresentation:
+    type: "object"
+    properties:
+      nextPageUrl:
+        type: "string"
+        description: "The URL you use to get the next page of datasets."
+      totalSize:
+        type: "string"
+        example: ""
+        description: "The total number of datasets."
+      datasets:
+        type: "array"
+        description: "A list of of dataset summaries."
+        items:
+          $ref: "#/definitions/OrchestrationDatasetSummaryRepresentation"
+    example:
+      nextPageUrl: "nextPageUrl"
+      totalSize: ""
+      datasets:
+      - name: "name"
+        label: "label"
+        url: "url"
+      - name: "name"
+        label: "label"
+        url: "url"
+  OrchestrationDatasetSummaryRepresentation:
+    type: "object"
+    properties:
+      label:
+        type: "string"
+        description: "The dataset label that's displayed in the user interface."
+      name:
+        type: "string"
+        description: "A unique identifier for the dataset."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve the dataset definition."
+    example:
+      name: "name"
+      label: "label"
+      url: "url"
+  OrchestrationDatasetDetailRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "A unique identifier for the dataset."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve the dataset definition."
+      label:
+        type: "string"
+        description: "The dataset label that's displayed in the user interface."
+      lastRefreshDate:
+        type: "string"
+        description: "The date of the last data refresh."
+      definition:
+        $ref: "#/definitions/OrchestrationDatasetDefinitionRepresentation"
+    example:
+      lastRefreshDate: "lastRefreshDate"
+      name: "name"
+      definition:
+        keys:
+        - "keys"
+        - "keys"
+        fields:
+        - dataType: "Number"
+          name: "name"
+        - dataType: "Number"
+          name: "name"
+      label: "label"
+      url: "url"
+  OrchestrationDatasetDefinitionRepresentation:
+    type: "object"
+    properties:
+      fields:
+        type: "array"
+        description: "The fields of this dataset."
+        items:
+          $ref: "#/definitions/OrchestrationDatasetDefinitionFieldRepresentation"
+      keys:
+        type: "array"
+        items:
+          type: "string"
+          description: "The key fields of this dataset."
+    example:
+      keys:
+      - "keys"
+      - "keys"
+      fields:
+      - dataType: "Number"
+        name: "name"
+      - dataType: "Number"
+        name: "name"
+  OrchestrationDatasetDefinitionFieldRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The name of the field."
+      dataType:
+        type: "string"
+        description: "The data type of the field."
+        enum:
+        - "Number"
+        - "String"
+        - "DateTime"
+    example:
+      dataType: "Number"
+      name: "name"
+  OrchestrationTransitionCount:
+    type: "object"
+    properties:
+      count:
+        type: "integer"
+        description: "The count of orchestration transitions from one state to another."
+      fromStateId:
+        type: "integer"
+        description: "The origin state."
+      toStateId:
+        type: "integer"
+        description: "The destination state."
+    description: "The count of orchestration transitions from one state to another."
+    example:
+      fromStateId: 6
+      count: 0
+      toStateId: 1
+  OrchestrationDefinitionLocation:
+    type: "string"
+    description: "The JSON path to an element of an orchestration definition."
+  OrchestrationDefinitionRepresentation:
+    type: "object"
+    properties:
+      states:
+        type: "array"
+        description: "The states defined for the orchestration."
+        items:
+          $ref: "#/definitions/OrchestrationStateRepresentation"
+      variables:
+        type: "array"
+        description: "The variables defined for the orchestration."
+        items:
+          $ref: "#/definitions/OrchestrationVariableRepresentation"
+    description: "The definition of an orchestration including orchestration states,\
+      \ variables, and properties."
+  OrchestrationPropertiesRepresentation:
+    type: "object"
+    properties:
+      restartOnError:
+        type: "boolean"
+        description: "Set to true to create a new orchestration instance for an incoming\
+          \ event with a matching key after an error occurs. By default (false), incoming\
+          \ events are ignored after an error occurs in the matching orchestration\
+          \ instance."
+      runOnce:
+        type: "boolean"
+        description: "Set to true to ignore incoming events with a matching key for\
+          \ an exited orchestration instance. By default (false), incoming events\
+          \ with a matching key delete an exited orchestration instance and create\
+          \ a new instance."
+    description: "Orchestration properties."
+  OrchestrationStateReferenceRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "A unique identifier for the state."
+      name:
+        type: "string"
+        description: "The state name."
+    description: "A reference to an orchestration state."
+    example:
+      name: "name"
+      id: 0
+  OrchestrationStateRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "A unique identifier for the state."
+      name:
+        type: "string"
+        description: "The state name."
+      initial:
+        type: "boolean"
+        description: "Indicates whether the state is the first state to be evaluated\
+          \ for a new orchestration instance."
+      rules:
+        type: "array"
+        description: "The rules defined for the orchestration."
+        items:
+          $ref: "#/definitions/OrchestrationRuleRepresentation"
+    description: "An orchestration state."
+  OrchestrationRuleRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        description: "A unique identifier for the rule."
+      description:
+        type: "string"
+        description: "A rule description."
+      condition:
+        type: "string"
+        description: "Specifies the condition to be evaluated. The Salesforce Expression\
+          \ Language is supported."
+      actions:
+        type: "array"
+        description: "A list of actions to execute, such as assigning a variable value\
+          \ or creating a Salesforce record, when a condition is met."
+        items:
+          $ref: "#/definitions/OrchestrationActionRepresentation"
+    description: "An orchestration rule."
+  OrchestrationRuleWhenRepresentation:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "The when condition value."
+        enum:
+        - "Always"
+        - "Immediately"
+        - "Second"
+        - "Minute"
+        - "Hour\""
+        - "Day"
+        - "Event"
+        - "Custom"
+    description: "The rule when condition."
+  OrchestrationRuleWhenSimpleRepresentation:
+    type: "object"
+  OrchestrationRuleWhenTemporalRepresentation:
+    type: "object"
+    properties:
+      value:
+        type: "string"
+  OrchestrationRuleWhenEventRepresentation:
+    type: "object"
+    properties:
+      eventSource:
+        type: "string"
+  OrchestrationRuleWhenCustomRepresentation:
+    type: "object"
+    properties:
+      value:
+        type: "string"
+  OrchestrationActionRepresentation:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "The type of action."
+        enum:
+        - "AssignVariable"
+        - "ResetVariable"
+        - "ChangeState"
+        - "Terminate"
+        - "SalesforceOutputAction"
+    description: "An action defined in a rule."
+  OrchestrationAssignVariableActionRepresentation:
+    type: "object"
+    properties:
+      variableId:
+        type: "integer"
+      value:
+        type: "string"
+  OrchestrationResetVariableActionRepresentation:
+    type: "object"
+    properties:
+      variableId:
+        type: "integer"
+  OrchestrationChangeStateActionRepresentation:
+    type: "object"
+    properties:
+      stateId:
+        type: "integer"
+  OrchestrationTerminateActionRepresentation:
+    type: "object"
+    properties:
+      exitType:
+        type: "string"
+        enum:
+        - "Success"
+        - "Failure"
+        - "Expired"
+        - "NotApplicable"
+  OrchestrationOutputActionRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      label:
+        type: "string"
+      responseEventName:
+        type: "string"
+      isResponseIngested:
+        type: "boolean"
+  OrchestrationSalesforceOutputActionRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        enum:
+        - "Create"
+        - "Read"
+        - "Edit"
+        - "Delete"
+      label:
+        type: "string"
+      fieldAssignments:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationSalesforceOutputActionField"
+      recordFilters:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationSalesforceOutputActionField"
+      salesforceObjectApiName:
+        type: "string"
+      responseEventName:
+        type: "string"
+  OrchestrationSalesforceOutputActionField:
+    type: "object"
+    properties:
+      field:
+        type: "string"
+        description: "The field name."
+      value:
+        type: "string"
+        description: "The field value."
+    description: "A Salesforce record field assignment in a Salesforce output action."
+  OrchestrationVariableRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        example: 0
+        description: "A unique identifier for the variable."
+      name:
+        type: "string"
+        description: "The variable name."
+      description:
+        type: "string"
+        description: "A description of the variable."
+      eventSource:
+        type: "string"
+        description: "The event from which field values are used to build the variable\
+          \ value."
+      condition:
+        type: "string"
+        description: "The condition to be evaluated. The Salesforce Expression Language\
+          \ is supported."
+      initialValue:
+        type: "string"
+        description: "An initial value for the variable."
+      dataType:
+        type: "string"
+        description: "The data type of the variable."
+        enum:
+        - "Boolean"
+        - "Date"
+        - "DateTime"
+        - "Number"
+        - "String"
+    description: "A variable defined in an orchestration."
+  OrchestrationVariableValueRepresentation:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        description: "The formula to use to calculate the value."
+        enum:
+        - "Avg"
+        - "Sum"
+        - "Min"
+        - "Max"
+        - "Count"
+        - "ConsecutiveDuration"
+        - "Custom"
+    description: "The variable value expressed as a formula."
+  OrchestrationEventFieldVariableValueRepresentation:
+    type: "object"
+    properties:
+      eventField:
+        type: "string"
+  OrchestrationTemporalAggregationVariableValueRepresentation:
+    type: "object"
+    properties:
+      eventField:
+        type: "string"
+      temporalWindow:
+        $ref: "#/definitions/SalesforceTemporalExpression"
+  OrchestrationCountAggregationVariableValueRepresentation:
+    type: "object"
+    properties:
+      temporalWindow:
+        $ref: "#/definitions/SalesforceTemporalExpression"
+  OrchestrationCustomVariableValueRepresentation:
+    type: "object"
+    properties:
+      formula:
+        type: "string"
+  OrchestrationRuleThrottleRepresentation:
+    type: "object"
+    properties:
+      times:
+        type: "integer"
+        description: "The maximum number of times per period that the rule can be\
+          \ triggered."
+      period:
+        type: "integer"
+        description: "The period during which throttling occurs."
+      unit:
+        type: "string"
+        description: "The time unit associated with the period."
+        enum:
+        - "Seconds"
+        - "Minutes"
+        - "Hours"
+        - "Days"
+        - "Weeks"
+        - "Months"
+        - "Years"
+    description: "Throttling behavior applied to a rule."
+  SalesforceExpression:
+    type: "string"
+  SalesforceTemporalExpression:
+    type: "string"
+  ContextReferenceRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "A unique identifier for the context."
+      name:
+        type: "string"
+        description: "The context name."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+      url:
+        type: "string"
+        description: "Resource URL to retrieve this context."
+      runtime:
+        type: "string"
+        description: "The Salesforce IoT runtime used."
+        enum:
+        - "Standard"
+        - "HighVolume"
+    description: "A reference to a context."
+  ContextReferenceInputRepresentation:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The context name."
+      namespace:
+        type: "string"
+        description: "A namespace prefix used for packages."
+    description: "The context name and namespace."
+  UserReference:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "The user name."
+      id:
+        type: "string"
+        description: "The user ID."
+    description: "A reference to a user."
+    example:
+      name: "name"
+      id: "id"
+  UsageDetailRepresentation:
+    type: "object"
+    properties:
+      orchestrationsUsageUrl:
+        type: "string"
+        format: "uri"
+        description: "Resource URL to retrieve usage detail information."
+    description: "Detailed information about IoT usage for the Salesforce org."
+    example:
+      orchestrationsUsageUrl: "http://example.com/aeiou"
+  OrchestrationUsageCollectionRepresentation:
+    type: "object"
+    properties:
+      nextPageUrl:
+        type: "string"
+        format: "uri"
+        description: "The URL you use to get the next page of orchestration usage\
+          \ information."
+      totalSize:
+        type: "integer"
+        description: "Total number of usage items."
+      Orchestrations:
+        type: "array"
+        description: "A list of orchestrations and their usage information."
+    description: "A list of orchestration usage information."
+    example:
+      nextPageUrl: "http://example.com/aeiou"
+      totalSize: 0
+      Orchestrations: ""
+  OrchestrationUsageRepresentation:
+    type: "object"
+    properties:
+      activationStatus:
+        type: "string"
+        description: "The orchestration activation status."
+        enum:
+        - "Active"
+        - "Inactive"
+        - "Activating"
+        - "Deactivating"
+        - "Error"
+      name:
+        type: "string"
+        description: "The orchestration name."
+      instanceCount:
+        type: "integer"
+        description: "The number of instances for the orchestration."
+      processedEventCount:
+        type: "integer"
+        description: "The number of events processed successfully for the orchestration\
+          \ in the last 24 hours."
+      rejectedEventCount:
+        type: "integer"
+        description: "The number of events skipped for the orchestration in the last\
+          \ 24 hours."
+      orchestrationUrl:
+        type: "string"
+        format: "uri"
+        description: "Resource URL to retrieve the orchestration."
+    description: "Usage information for an orchestration."
+  EventUsageRepresentation:
+    type: "object"
+    properties:
+      processedEventCount:
+        type: "integer"
+        description: "The number of events processed successfully across the whole\
+          \ org in the last 24 hours."
+      rejectedEventCount:
+        type: "integer"
+        description: "Number of events skipped across the whole Salesforce org due\
+          \ to exceeded allocations in the last 24 hrs."
+    description: "Event usage information that includes the number of events processed\
+      \ and skipped in the last 24 hours."
+  AllocationsRepresentation:
+    type: "object"
+    properties:
+      maxInstanceAllocation:
+        type: "array"
+      maxEventAllocation:
+        type: "array"
+    description: "Allocations for events and orchestration instances for the whole\
+      \  Salesforce org."
+  AllocationCountRepresentation:
+    type: "object"
+    properties:
+      count:
+        type: "integer"
+        description: "The value for the allocation."
+      description:
+        type: "string"
+        description: "The description of the allocation."
+    description: "An allocation for the Salesforce org."
+  OrchestrationTrackerCollectionRepresentation:
+    type: "object"
+    required:
+    - "totalSize"
+    - "trackers"
+    - "url"
+    properties:
+      url:
+        type: "string"
+        format: "uri"
+      nextPageUrl:
+        type: "string"
+        format: "uri"
+      totalSize:
+        type: "integer"
+      trackers:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationTrackerRepresentation"
+    example:
+      trackers:
+      - terminatedDate: "terminatedDate"
+        lastModifiedDate: "lastModifiedDate"
+        orchestrationUrl: "http://example.com/aeiou"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        url: "http://example.com/aeiou"
+        createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        id: "000000000000000"
+        startDate: "startDate"
+        terminated: true
+        terminationReason: "Expired"
+        instanceKey: "KEY0000"
+        expirationDate: "expirationDate"
+      - terminatedDate: "terminatedDate"
+        lastModifiedDate: "lastModifiedDate"
+        orchestrationUrl: "http://example.com/aeiou"
+        lastModifiedBy:
+          name: "name"
+          id: "id"
+        url: "http://example.com/aeiou"
+        createdDate: "createdDate"
+        createdBy:
+          name: "name"
+          id: "id"
+        id: "000000000000000"
+        startDate: "startDate"
+        terminated: true
+        terminationReason: "Expired"
+        instanceKey: "KEY0000"
+        expirationDate: "expirationDate"
+      nextPageUrl: "http://example.com/aeiou"
+      totalSize: 0
+      url: "http://example.com/aeiou"
+  OrchestrationTrackerRepresentation:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        example: "000000000000000"
+        description: "15/18 character Salesforce identifier."
+      url:
+        type: "string"
+        format: "uri"
+        description: "Resource URL for this orchestration tracker."
+      orchestrationUrl:
+        type: "string"
+        format: "uri"
+      instanceKey:
+        $ref: "#/definitions/OrchestrationInstanceKey"
+      startDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      expirationDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      terminated:
+        type: "boolean"
+      terminatedDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      terminationReason:
+        type: "string"
+        enum:
+        - "Expired"
+        - "Throttled"
+      createdDate:
+        type: "string"
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      lastModifiedDate:
+        type: "string"
+      lastModifiedBy:
+        $ref: "#/definitions/UserReference"
+    example:
+      terminatedDate: "terminatedDate"
+      lastModifiedDate: "lastModifiedDate"
+      orchestrationUrl: "http://example.com/aeiou"
+      lastModifiedBy:
+        name: "name"
+        id: "id"
+      url: "http://example.com/aeiou"
+      createdDate: "createdDate"
+      createdBy:
+        name: "name"
+        id: "id"
+      id: "000000000000000"
+      startDate: "startDate"
+      terminated: true
+      terminationReason: "Expired"
+      instanceKey: "KEY0000"
+      expirationDate: "expirationDate"
+  OrchestrationTrackerPostInputRepresentation:
+    type: "object"
+    required:
+    - "instanceKey"
+    properties:
+      instanceKey:
+        type: "string"
+      startDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      expirationDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+    example:
+      startDate: "startDate"
+      instanceKey: "instanceKey"
+      expirationDate: "expirationDate"
+  OrchestrationTrackerPatchInputRepresentation:
+    type: "object"
+    properties:
+      startDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      expirationDate:
+        type: "string"
+        format: "yyyy-MM-dd'T'HH:mm:ss.SSSZZ"
+      terminated:
+        type: "boolean"
+    example:
+      startDate: "startDate"
+      terminated: true
+      expirationDate: "expirationDate"
+  OrchestrationLogEventCollectionRepresentation:
+    type: "object"
+    required:
+    - "log"
+    - "url"
+    properties:
+      url:
+        type: "string"
+        format: "uri"
+      prevPageUrl:
+        type: "string"
+        format: "uri"
+      nextPageUrl:
+        type: "string"
+        format: "uri"
+      log:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    example:
+      nextPageUrl: "http://example.com/aeiou"
+      log:
+      - orchestrationId: "orchestrationId"
+        name: "Begin"
+        activationId: "activationId"
+        instanceKey: "KEY0000"
+        timestamp: 0
+      - orchestrationId: "orchestrationId"
+        name: "Begin"
+        activationId: "activationId"
+        instanceKey: "KEY0000"
+        timestamp: 0
+      prevPageUrl: "http://example.com/aeiou"
+      url: "http://example.com/aeiou"
+  OrchestrationLogEventRepresentation:
+    type: "object"
+    required:
+    - "activationId"
+    - "instanceKey"
+    - "name"
+    - "orchestrationId"
+    - "timestamp"
+    discriminator: "name"
+    properties:
+      orchestrationId:
+        type: "string"
+      activationId:
+        type: "string"
+      instanceKey:
+        $ref: "#/definitions/OrchestrationInstanceKey"
+      timestamp:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        enum:
+        - "Begin"
+        - "End"
+        - "Input"
+        - "Output"
+        - "FullState"
+        - "Info"
+        - "Error"
+        - "Transition"
+        - "Terminate"
+        - "VariableChange"
+        - "TimerArm"
+        - "TimerUnarm"
+        - "RuleCondition"
+        - "ThrottleCreate"
+        - "ThrottleActivate"
+    example:
+      orchestrationId: "orchestrationId"
+      name: "Begin"
+      activationId: "activationId"
+      instanceKey: "KEY0000"
+      timestamp: 0
+  OrchestrationLogBeginEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "inputEventKind"
+      - "lifecycle"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Begin"
+        lifecycle:
+          $ref: "#/definitions/OrchestrationInstanceLifecycleStatus"
+        inputEventKind:
+          $ref: "#/definitions/OrchestrationLogEventInputEventKind"
+  OrchestrationLogEndEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "inputEventProcessingResult"
+      - "lifecycle"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "End"
+        lifecycle:
+          $ref: "#/definitions/OrchestrationInstanceLifecycleStatus"
+        inputEventProcessingResult:
+          $ref: "#/definitions/OrchestrationLogEventInputEventProcessingResult"
+  OrchestrationLogInputEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "input"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Input"
+        input:
+          type: "object"
+          description: "input event representation"
+          properties: {}
+  OrchestrationLogOutputEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Output"
+        location:
+          type: "string"
+  OrchestrationLogFullStateEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "state"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "FullState"
+        state:
+          $ref: "#/definitions/OrchestrationInstanceDetailRepresentation"
+  OrchestrationLogInfoEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "message"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Info"
+        location:
+          type: "string"
+        message:
+          type: "string"
+  OrchestrationLogErrorEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "message"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Error"
+        location:
+          type: "string"
+        message:
+          type: "string"
+  OrchestrationLogTransitionEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "fromState"
+      - "location"
+      - "toState"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Transition"
+        location:
+          type: "string"
+        fromState:
+          type: "integer"
+        toState:
+          type: "integer"
+  OrchestrationLogTerminateEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "terminationKind"
+      - "terminationReason"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "Terminate"
+        location:
+          type: "string"
+        terminationKind:
+          $ref: "#/definitions/OrchestrationLogEventTerminationKind"
+        terminationReason:
+          type: "string"
+  OrchestrationLogVariableChangeEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "newValue"
+      - "oldValue"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "VariableChange"
+        location:
+          type: "string"
+        newValue:
+          $ref: "#/definitions/VariableRepresentation"
+        oldValue:
+          $ref: "#/definitions/VariableRepresentation"
+  OrchestrationLogTimerArmEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "armedTime"
+      - "location"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "TimerArm"
+        location:
+          type: "string"
+        armedTime:
+          type: "string"
+          description: "Time at which a timer will fire next."
+  OrchestrationLogTimerUnarmEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "armedTime"
+      - "location"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "TimerUnarm"
+        location:
+          type: "string"
+        armedTime:
+          type: "string"
+          description: "Time at which a timer was going to fire next."
+  OrchestrationLogRuleConditionEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "match"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "RuleCondition"
+        location:
+          type: "string"
+        match:
+          type: "boolean"
+          description: "True, if the rule's when and condition evaluated to True;\
+            \  otherwise false."
+  OrchestrationLogThrottleEventRepresentation:
+    allOf:
+    - $ref: "#/definitions/OrchestrationLogEventRepresentation"
+    - type: "object"
+      required:
+      - "location"
+      - "throttle"
+      properties:
+        name:
+          type: "string"
+          enum:
+          - "ThrottleCreate"
+          - "ThrottleActivate"
+        location:
+          type: "string"
+        throttle:
+          $ref: "#/definitions/OrchestrationRuleThrottleStateRepresentation"
+  OrchestrationRuleThrottleStateRepresentation:
+    type: "object"
+  OrchestrationLogEventTerminationKind:
+    type: "string"
+    enum:
+    - "Action"
+    - "Error"
+  OrchestrationLogEventInputEventKind:
+    type: "string"
+    enum:
+    - "PlatformEvent"
+    - "TimerEvent"
+    - "ResponseEvent"
+  OrchestrationLogEventInputEventProcessingResult:
+    type: "string"
+    enum:
+    - "Processed"
+    - "IgnoredDeprecated"
+    - "IgnoredTerminated"
+  OrchestrationInstanceLifecycleStatus:
+    type: "string"
+    enum:
+    - "NotStarted"
+    - "Started"
+    - "Restarted"
+    - "Current"
+    - "Terminated"
+    - "Erred"
+    - "Deprecated"
+  OrchestrationInstanceKey:
+    type: "string"
+    description: "Key of an orchestration instance."
+    example: "KEY0000"
+  Source:
+    type: "object"
+    properties:
+      runtime:
+        type: "string"
+        description: "Runtime type associated with the activity."
+        enum:
+        - "Standard"
+        - "HighVolume"
+      category:
+        type: "string"
+        description: "Nominal category associated with the requested object ID."
+        enum:
+        - "Orchestration"
+        - "Context"
+      id:
+        type: "string"
+        description: "18 character identifier or US document ID associated with activity\
+          \ object."
+      label:
+        type: "string"
+        description: "The label."
+      name:
+        type: "string"
+        description: "Name associated with the activity object."
+      url:
+        type: "string"
+        format: "uri"
+        description: "URL link to the definition associated with the requested object."
+    example:
+      name: "name"
+      runtime: "Standard"
+      id: "id"
+      label: "label"
+      category: "Orchestration"
+      url: "http://example.com/aeiou"
+  InstanceActivityInfo:
+    type: "object"
+    properties:
+      errorCode:
+        type: "string"
+        description: "Internal runtime code associated with the error."
+      errorMessage:
+        type: "string"
+        description: "Textual description of the error."
+      fromStateId:
+        type: "string"
+        description: "ID of the state from which the error state originated."
+      instanceKey:
+        type: "string"
+        description: "Event partition key."
+      event:
+        type: "string"
+        description: "Raw json event representation associated with error."
+  MetadataActivityInfo:
+    type: "object"
+    properties:
+      originalDefinition:
+        type: "string"
+        description: "Serialized representation of context or orchestration definition\
+          \ pre-change."
+      currentDefinition:
+        type: "string"
+        description: "Serialized representation of context or orchestration definition\
+          \ post change."
+  NotificationActivityInfo:
+    type: "object"
+    properties:
+      recipient:
+        type: "string"
+        description: "Email address notified."
+      reason:
+        type: "string"
+        description: "Textual description of the notification."
+  Activity:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Unique identifier associated with log entry."
+      url:
+        type: "string"
+        format: "uri"
+        description: "URL to the /activities/{...} for the specific log entry."
+      level:
+        type: "string"
+        description: "Log level of activity."
+        enum:
+        - "Info"
+        - "Error"
+      summary:
+        type: "string"
+        description: "Short summary describing the activity."
+      createdBy:
+        $ref: "#/definitions/UserReference"
+      createdDate:
+        type: "string"
+        format: "date-time"
+        description: "Time the activity was recorded."
+      type:
+        type: "string"
+        description: "Category of activity."
+        enum:
+        - "ContextSave"
+        - "ContextDelete"
+        - "ContextActivate"
+        - "OrchestrationSave"
+        - "OrchestrationDelete"
+        - "OrchestrationActivate"
+        - "OrchestrationDeactivate"
+        - "OrchestrationInstanceLimitNotification"
+        - "EventLimitNotification"
+        - "LostEventNotification"
+        - "TransitionToErrorState"
+      source:
+        $ref: "#/definitions/Source"
+    example:
+      summary: "summary"
+      createdDate: "2000-01-23T04:56:07.000+00:00"
+      level: "Info"
+      createdBy:
+        name: "name"
+        id: "id"
+      id: "id"
+      source:
+        name: "name"
+        runtime: "Standard"
+        id: "id"
+        label: "label"
+        category: "Orchestration"
+        url: "http://example.com/aeiou"
+      type: "ContextSave"
+      url: "http://example.com/aeiou"
+  ActivityInfo:
+    type: "object"
+    properties:
+      activity:
+        $ref: "#/definitions/Activity"
+    example:
+      activity:
+        summary: "summary"
+        createdDate: "2000-01-23T04:56:07.000+00:00"
+        level: "Info"
+        createdBy:
+          name: "name"
+          id: "id"
+        id: "id"
+        source:
+          name: "name"
+          runtime: "Standard"
+          id: "id"
+          label: "label"
+          category: "Orchestration"
+          url: "http://example.com/aeiou"
+        type: "ContextSave"
+        url: "http://example.com/aeiou"
+  OrchestrationActivationValidationFailureRepresentation:
+    type: "object"
+    properties:
+      message:
+        type: "string"
+      output:
+        $ref: "#/definitions/OrchestrationActivationValidationFailureRepresentation_output"
+    description: "A list of validation messages returned when activating an orchestration\
+      \ with validation errors."
+  OrchestrationActivationValidationFailureRepresentation_output:
+    properties:
+      messages:
+        type: "array"
+        items:
+          $ref: "#/definitions/OrchestrationValidationMessageRepresentation"

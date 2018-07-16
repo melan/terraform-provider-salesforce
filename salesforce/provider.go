@@ -5,6 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/melan/terraform-provider-salesforce/salesforce/resource"
+	"github.com/melan/terraform-provider-salesforce/salesforce/resource/iot"
 )
 
 func Provider() *schema.Provider {
@@ -52,7 +53,8 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"sfdx_user": resource.User(),
+			"sfdx_user":              resource.User(),
+			"sfdx_iot_orchestration": iot.Orchestration(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sfdx_org": resource.Org(),

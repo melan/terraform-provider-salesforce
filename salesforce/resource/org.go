@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/nimajalali/go-force/force"
+	"github.com/melan/terraform-provider-salesforce/salesforce"
 )
 
 func Org() *schema.Resource {
@@ -68,7 +68,7 @@ func Org() *schema.Resource {
 
 func orgRead(d *schema.ResourceData, m interface{}) error {
 	log.Println("Reading an org")
-	client := m.(*force.ForceApi)
+	client := m.(salesforce.Client).SObjectApi
 
 	instanceUrl := client.GetInstanceURL()
 	key := instanceUrl
